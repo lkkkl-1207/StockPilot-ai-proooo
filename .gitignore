@@ -1,0 +1,21 @@
+# API keys and secrets
+.env
+backend/.env
+*.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build and temporary files
+*.log
