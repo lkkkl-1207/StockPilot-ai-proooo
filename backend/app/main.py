@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
 from pathlib import Path
 from fastapi.responses import FileResponse
-from app.decision_engine import build_decision
+from app.decision_engine_v2 import build_decision
 
 app = FastAPI(
     title="StockPilot AI Pro",
