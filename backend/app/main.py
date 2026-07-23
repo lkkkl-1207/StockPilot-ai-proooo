@@ -15,6 +15,7 @@ from openai import OpenAI
 from pathlib import Path
 from fastapi.responses import FileResponse
 from app.decision_engine_v2 import build_decision
+from app.telegram_webhook import process_telegram_update
 
 app = FastAPI(
     title="StockPilot AI Pro",
@@ -818,3 +819,9 @@ def get_stock_decision(
             status_code=500,
             detail=f"生成价格决策失败：{error}",
         ) from error
+
+@app.post("/webhook")
+def telegram_webhook(
+    update: dict[str, Any],
+) -> dict[str, Any]:
+    return process_telegram_update(update)        
