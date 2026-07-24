@@ -4,8 +4,7 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: "*/5 9-16 * * 1-5"
-      timezone: "America/New_York"
+    - cron: "*/5 13-21 * * 1-5"
 
 jobs:
   monitor:
@@ -49,4 +48,3 @@ jobs:
 
       - name: Run intraday monitor
         run: python intraday_monitor.py
-        
