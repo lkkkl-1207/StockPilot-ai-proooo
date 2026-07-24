@@ -6,6 +6,11 @@ from typing import Any
 
 from app.decision_engine_v2 import build_decision
 from app.telegram_bot import send_message
+from app.watchlist_manager import (
+    add_symbol,
+    get_watchlist,
+    remove_symbol,
+)
 
 
 SYMBOL_PATTERN = re.compile(r"^[A-Z0-9.^=-]{1,20}$")
@@ -14,6 +19,119 @@ SYMBOL_PATTERN = re.compile(r"^[A-Z0-9.^=-]{1,20}$")
 def extract_symbol(text: str) -> str | None:
     """从 Telegram 消息中提取股票代码。"""
     cleaned = text.strip().upper()
+        if cleaned in {
+        "观察列表",
+        "查看观察列表",
+        "watchlist",
+        "/watchlist",
+    }:
+        try:
+            watchlist = get_watchlist()
+
+            if watchlist:
+                watchlist_text = "\n".join(
+                    f"• <code>{escape(symbol)}</code>"
+                    for symbol in watchlist
+                )
+                reply = (
+                    "📋 <b>当前观察列表</b>\n\n"
+                    f"{watchlist_text}\n\n"
+                    f"共 {len(watchlist)} 只股票。"
+                )
+            else:
+                reply = "当前观察列表为空。"
+
+            send_message(reply, chat_id=chat_id)
+
+        except Exception as error:
+            send_message(
+                "❌ 读取观察列表失败\n"
+                f"{escape(str(error))}",
+                chat_id=chat_id,
+            )
+
+        return {
+            "ok": True,
+            "action": "show_watchlist",
+        }
+
+    add_match = re.fullmatch(
+        r"(?:添加|加入)\s*([A-Za-z0-9.^=-]{1,20})",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+
+    if add_match:
+        symbol = add_match.group(1).upper()
+
+        try:
+            watchlist, added = add_symbol(symbol)
+
+            if added:
+                reply = (
+                    f"✅ <b>{escape(symbol)}</b> "
+                    "已加入观察列表。\n"
+                    f"当前共 {len(watchlist)} 只股票。"
+                )
+            else:
+                reply = (
+                    f"ℹ️ <b>{escape(symbol)}</b> "
+                    "已经在观察列表中。"
+                )
+
+            send_message(reply, chat_id=chat_id)
+
+        except Exception as error:
+            send_message(
+                f"❌ 添加 <b>{escape(symbol)}</b> 失败\n"
+                f"{escape(str(error))}",
+                chat_id=chat_id,
+            )
+
+        return {
+            "ok": True,
+            "action": "add_watchlist",
+            "symbol": symbol,
+        }
+
+    remove_match = re.fullmatch(
+        r"(?:删除|移除)\s*([A-Za-z0-9.^=-]{1,20})",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+
+    if remove_match:
+        symbol = remove_match.group(1).upper()
+
+        try:
+            watchlist, removed = remove_symbol(symbol)
+
+            if removed:
+                reply = (
+                    f"✅ <b>{escape(symbol)}</b> "
+                    "已从观察列表删除。\n"
+                    f"当前共 {len(watchlist)} 只股票。"
+                )
+            else:
+                reply = (
+                    f"ℹ️ <b>{escape(symbol)}</b> "
+                    "不在观察列表中。"
+                )
+
+            send_message(reply, chat_id=chat_id)
+
+        except Exception as error:
+            send_message(
+                f"❌ 删除 <b>{escape(symbol)}</b> 失败\n"
+                f"{escape(str(error))}",
+                chat_id=chat_id,
+            )
+
+        return {
+            "ok": True,
+            "action": "remove_watchlist",
+            "symbol": symbol,
+        }
 
     if cleaned.startswith("/START"):
         return None
@@ -129,6 +247,10 @@ def help_message() -> str:
         "也可以发送：\n"
         "<code>分析 AMD</code>\n\n"
         "机器人会返回买入观察区、风险线、"
+        "\n<b>观察列表指令</b>\n"
+        "<code>观察列表</code>\n"
+        "<code>添加 PLTR</code>\n"
+        "<code>删除 AMD</code>\n"
         "止盈位和分析理由。"
     )
 
