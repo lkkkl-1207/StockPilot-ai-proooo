@@ -1,13 +1,13 @@
-name: StockPilot Intraday Monitor
+name: StockPilot Closing Review
 
 on:
   workflow_dispatch:
 
   schedule:
-    - cron: "*/5 13-21 * * 1-5"
+    - cron: "15 20 * * 1-5"
 
 jobs:
-  monitor:
+  closing-review:
     runs-on: ubuntu-latest
 
     defaults:
@@ -17,14 +17,10 @@ jobs:
     env:
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
-      ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-      OPENROUTER_MODEL: ${{ secrets.OPENROUTER_MODEL }}
 
     steps:
       - name: Download project
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -38,15 +34,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Restore previous alert state
+      - name: Restore intraday events
         uses: actions/cache@v4
         with:
           path: |
             backend/intraday_state.json
             backend/intraday_events.json
-          key: intraday-state-${{ github.run_id }}
+          key: closing-review-${{ github.run_id }}
           restore-keys: |
             intraday-state-
 
-      - name: Run intraday monitor
-        run: python intraday_monitor.py
+      - name: Send closing review
+        run: python closing_review.py
+        
