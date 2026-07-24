@@ -1,22 +1,22 @@
 {
-    "watchlist": [
-      "NVDA",
-      "AAPL",
-      "MSFT",
-      "META",
-      "AMD",
-      "TSLA",
-      "SKHY",
-      "SNDK",
-      "TSM",
-      "SPCX",
-      "ORCL",
-      "MU",
-      "AEHR",
-      "ASX",
-      "AMKR"
-
-    ],
-    "minimum_score": 70,
-    "maximum_results": 8
-  }
+  "watchlist": [
+    "AAPL",
+    "AEHR",
+    "AMD",
+    "AMKR",
+    "ASX",
+    "META",
+    "MSFT",
+    "MU",
+    "NVDA",
+    "ORCL",
+    "PLTR",
+    "SKHY",
+    "SNDK",
+    "SPCX",
+    "TSLA",
+    "TSM"
+  ],
+  "minimum_score": 70,
+  "maximum_results": 8
+}
